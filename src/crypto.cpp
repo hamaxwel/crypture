@@ -60,6 +60,7 @@ std::string encrypt(const std::string& plain) {
     std::vector<unsigned char> ciphertext(plain.size() + 16);
     int len, ciphertext_len;
     std::vector<unsigned char> tag(16);
+    std::string out;
     if (!ctx) return "";
     if (EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), NULL, NULL, NULL) != 1) goto error;
     if (EVP_EncryptInit_ex(ctx, NULL, NULL, g_key.data(), g_iv.data()) != 1) goto error;
@@ -70,7 +71,7 @@ std::string encrypt(const std::string& plain) {
     if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, 16, tag.data()) != 1) goto error;
     EVP_CIPHER_CTX_free(ctx);
     // Output: [IV][CIPHERTEXT][TAG]
-    std::string out((char*)g_iv.data(), g_iv.size());
+    out.assign((char*)g_iv.data(), g_iv.size());
     out.append((char*)ciphertext.data(), ciphertext_len);
     out.append((char*)tag.data(), tag.size());
     return out;
