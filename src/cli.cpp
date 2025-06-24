@@ -1,5 +1,6 @@
 #include "cli.hpp"
 #include "storage.hpp"
+#include "crypto.hpp"
 #include <iostream>
 #include <vector>
 #include <limits>
