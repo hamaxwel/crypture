@@ -42,14 +42,3 @@ bool delete_entry(std::vector<Credential>& entries, const std::string& site) {
     entries.erase(it, entries.end());
     return true;
 }
-
-// nlohmann::json serialization
-void to_json(json& j, const Credential& c) {
-    j = json{{"site", c.site}, {"username", c.username}, {"password", c.password}, {"notes", c.notes}};
-}
-void from_json(const json& j, Credential& c) {
-    j.at("site").get_to(c.site);
-    j.at("username").get_to(c.username);
-    j.at("password").get_to(c.password);
-    j.at("notes").get_to(c.notes);
-} 
