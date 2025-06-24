@@ -18,30 +18,24 @@ static const int PBKDF2_ITER = 100000;
 static const unsigned char g_salt[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}; // TODO: randomize and store
 }
 
+// Password strength validation
+bool is_strong_password(const std::string& pwd) {
+    if (pwd.length() < 8) return false;
+    bool has_digit = false, has_alpha = false;
+    for (char ch : pwd) {
+        if (std::isdigit(static_cast<unsigned char>(ch))) has_digit = true;
+        if (std::isalpha(static_cast<unsigned char>(ch))) has_alpha = true;
+    }
+    return has_digit && has_alpha;
+}
+
 std::string prompt_for_master_password() {
     std::string pwd;
     std::cout << "Master Password: ";
-#ifdef _WIN32
-    char ch;
-    while ((ch = _getch()) != '\r') {
-        if (ch == '\b' && !pwd.empty()) {
-            pwd.pop_back();
-            std::cout << "\b \b";
-        } else if (ch != '\b') {
-            pwd.push_back(ch);
-            std::cout << '*';
-        }
-    }
-#else
-    termios oldt, newt;
-    tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt;
-    newt.c_lflag &= ~ECHO;
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
     std::getline(std::cin, pwd);
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-#endif
-    std::cout << std::endl;
+    if (!is_strong_password(pwd)) {
+        std::cout << "Warning: Your password is weak. Use at least 8 characters, including letters and numbers.\n";
+    }
     return pwd;
 }
 
