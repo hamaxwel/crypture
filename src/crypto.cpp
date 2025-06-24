@@ -31,8 +31,32 @@ bool is_strong_password(const std::string& pwd) {
 
 std::string prompt_for_master_password() {
     std::string pwd;
+#if defined(CODESPACES) || defined(VSCODE) || defined(__CODESPACES)
+    std::cout << "Master Password (input may be visible in this terminal): ";
+#else
     std::cout << "Master Password: ";
+#endif
+#ifdef _WIN32
+    char ch;
+    while ((ch = _getch()) != '\r') {
+        if (ch == '\b' && !pwd.empty()) {
+            pwd.pop_back();
+            std::cout << "\b \b";
+        } else if (ch != '\b') {
+            pwd.push_back(ch);
+            std::cout << '*';
+        }
+    }
+#else
+    termios oldt, newt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
     std::getline(std::cin, pwd);
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+#endif
+    std::cout << std::endl;
     if (!is_strong_password(pwd)) {
         std::cout << "Warning: Your password is weak. Use at least 8 characters, including letters and numbers.\n";
     }
